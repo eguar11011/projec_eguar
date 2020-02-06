@@ -1,0 +1,96 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+from skimage import io
+from IPython.display import HTML
+TWOPI=5
+#grafico
+
+fig = plt.figure()
+fig.set_size_inches(10, 7.7)
+ax = plt.axes(xlim=(0, 15), ylim=(0, 6.5))
+#(xlim=(0, 15), ylim=(0, 6.5))
+
+angulo=float(input("ingrese el angulo ="))
+print("no exeder la fuerza")
+fuerzas=float(input("ingrese la fuerza ="))
+#datos
+g = 9.8
+
+#data figura1
+H=0.0
+theta = angulo * np.pi / 180.0 #f1angulo
+v0=fuerzas  #fuerza
+v0x=v0*np.cos(theta)
+v0y=v0*np.sin(theta)
+
+
+#data figura 2
+H1=3.0
+epsiol=45.0 * np.pi / 180.0  #f2angulo
+v1=10.87
+v1x=v1*np.cos(epsiol)
+v1y=v1*np.sin(epsiol)
+#figuras
+
+puntos=0
+redDot, = plt.plot([] ,[] ,'ro', markersize=15)
+rxdata, rydata = [], []
+blueDot,=plt.plot([0],[0],"bo", markersize=15)
+trianguloDot,=plt.plot([0],[0],"yv", markersize=15)
+greeDot,=plt.plot([],[],"go", markersize=15)
+gxdata, gydata = [], []
+trianDot,=plt.plot([0],[0],"ys", markersize=15)
+
+plt.title("Simulacion Angry Bird")
+fig.patch.set_facecolor('xkcd:mint green')
+ax.set_facecolor('xkcd:dark')
+
+#operaciones
+def animate(i):
+    global g,H,theta,v0x,v0y,v1,H1,epsiol,v1x,v1y,puntos
+
+    if puntos<=0:
+        rxdata, rydata = [], []
+        gxdata, gydata = [], []
+        rxdata.append(v0x * i)
+        rydata.append(H + v0y * i - (1 / 2) * g * (i ** 2))
+        redDot.set_data(rxdata, rydata)
+        blueDot.set_data(10, 4.0)
+        trianguloDot.set_data(10, 3.751)
+        trianDot.set_data(6,2.75)
+        gxdata.append(6.0)
+        gydata.append(3.0)
+        greeDot.set_data(gxdata, gydata)
+        
+        if np.sqrt(((gxdata[0] - rxdata[0]) ** 2) + (gydata[0] - rydata[0]) ** 2) < 0.47:
+            puntos+=1
+
+    else:
+        rxdata, rydata = [], []
+        gxdata, gydata = [], []
+
+        rxdata.append(v1x * (-i + 1.51))
+        rydata.append(H + v1y * i - (1 / 2) * g * (i ** 2))
+        redDot.set_data(rxdata, rydata)
+        blueDot.set_data(10, 4.0)
+        trianguloDot.set_data(10, 3.751)
+        trianDot.set_data(6, 2.75)
+        gxdata.append(v0x * i)
+        gydata.append(H + v0y * i - (1 / 2) * g * (i ** 2))
+        greeDot.set_data(gxdata, gydata)
+
+        plt.legend([f"point={puntos}"])
+
+
+
+    return redDot,greeDot,plt.legend([f"point={puntos}"])
+
+
+
+# create animation using the animate() function
+
+myAnimation = animation.FuncAnimation(fig, animate, frames=np.arange(0, TWOPI, 0.02), \
+                                      interval=10, blit=True, )
+
+HTML(myAnimation.to_html5_video())
